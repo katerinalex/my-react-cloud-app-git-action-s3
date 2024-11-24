@@ -15,6 +15,7 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { ToDoList } from './components/ToDoList';
 import { Upload } from './Upload';
+import { Contacts } from './Contacts';
 // .new comment to commit
 
 const USER_ID = 6701;
@@ -255,6 +256,7 @@ export const App: React.FC = () => {
       />
 
       <Upload />
+      <Contacts />
     </div>
   );
 };
