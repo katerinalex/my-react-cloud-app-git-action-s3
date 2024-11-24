@@ -23,13 +23,13 @@ jobs:
 
       - name: Build React App
         env:
-          REACT_APP_AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
+          REACT_APP_AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           REACT_APP_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           REACT_APP_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           REACT_APP_AWS_REGION: ${{ secrets.AWS_REGION }}
         run: npm run build
 
-      - name: Deploy to S3
+      - name: Deploy to AWS S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --acl public-read --follow-symlinks --delete
