@@ -1,0 +1,33 @@
+iframe {
+  display: none;
+}
+
+body {
+  min-width: 230px;
+  max-width: 550px;
+  margin: 0 auto;
+}
+
+.notification {
+  transition-property: opacity, min-height;
+  transition-duration: 1s;
+  min-height: 36px;
+}
+
+.notification.hidden {
+  min-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+button,
+input::file-selector-button {
+  padding: 5px 10px;
+  background-color: rgba(175, 47, 47, 0.15);
+  border: 1px solid rgba(175, 47, 47, 0.15);
+  cursor: pointer;
+}
+
+@import "./todoapp";
+@import "./todo";
+@import "./filter";
