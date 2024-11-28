@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  const scriptUrlEB = 'http://sample-book-env.eba-pp3eapci.eu-north-1.elasticbeanstalk.com/todos';
+  const scriptUrlEB = 'http://todo-env.eba-tq3zwkwk.eu-north-1.elasticbeanstalk.com/todos';
 
   useEffect(() => {
     // Get to EB
