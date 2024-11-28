@@ -1,14 +1,15 @@
+/* eslint-disable no-underscore-dangle */
 import { useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  handleDelete: (todoId: number) => void,
+  handleDelete: (todoId: string) => void,
   handleToggle: (todo: Todo) => void,
-  updating: number,
+  updating: string,
   handleChangingTitle: (todo: Todo, title: string) => void,
-  isRenaming: number,
-  setIsRenaming: (id: number) => void,
+  isRenaming: string,
+  setIsRenaming: (id: string) => void,
 };
 
 export const ToDo: React.FC<Props> = ({
@@ -40,12 +41,12 @@ export const ToDo: React.FC<Props> = ({
         />
       </label>
 
-      {isRenaming === todo.id
+      {isRenaming === todo._id
         ? (
           <form onSubmit={(event) => {
             event.preventDefault();
             handleChangingTitle(todo, newTitle);
-            setIsRenaming(0);
+            setIsRenaming('');
           }}
           >
             <input
@@ -67,7 +68,7 @@ export const ToDo: React.FC<Props> = ({
               className="todo__title"
               onClick={(event) => {
                 if (event.detail === 2) {
-                  setIsRenaming(todo.id);
+                  setIsRenaming(todo._id);
                   setStartTitle(todo.title);
                 }
               }}
@@ -78,7 +79,7 @@ export const ToDo: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => handleDelete(todo.id)}
+              onClick={() => handleDelete(todo._id)}
             >
               ×
             </button>
@@ -86,7 +87,7 @@ export const ToDo: React.FC<Props> = ({
         )}
 
       <div
-        className={`modal overlay ${updating === todo.id && 'is-active'}`}
+        className={`modal overlay ${updating === todo._id && 'is-active'}`}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

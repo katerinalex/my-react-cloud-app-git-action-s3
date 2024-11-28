@@ -1,12 +1,14 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-console */
 /* eslint-disable max-len */
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import {
-  getTodos,
-  postTodo,
-  deleteTodo,
-  updateTodo,
-} from './api/todos';
+// import {
+//   // getTodos,
+//   // postTodo,
+//   deleteTodo,
+//   updateTodo,
+// } from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/Filter';
 import { ErrorType } from './types/Error';
@@ -15,7 +17,7 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { ToDoList } from './components/ToDoList';
 import { Upload } from './Upload';
-import { Contacts } from './Contacts';
+// import { Contacts } from './Contacts';
 // .new comment to commit
 
 const USER_ID = 6701;
@@ -26,29 +28,27 @@ export const App: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<FilterType>(FilterType.All);
   const [error, setError] = useState<ErrorType>(ErrorType.None);
   const [input, setInput] = useState('');
-  const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  // const scriptUrl = 'https://zdfkffnxpqg6b35zcfxxt6g5iq0iaima.lambda-url.eu-north-1.on.aws/';
+  const scriptUrlEB = 'http://sample-book-env.eba-pp3eapci.eu-north-1.elasticbeanstalk.com/todos';
 
   useEffect(() => {
-    // fetch(scriptUrl, { method: 'GET' })
-    //   .then((res) => {
-    //     return res.json();
-    //   })
-    //   .then((res) => {
-    //     setTodos(res);
-    //   })
-    //   // eslint-disable-next-line no-console
-    //   .catch(() => {
-    //     setError(ErrorType.Loading);
-    //     setTodos([]);
-    //   });
-    getTodos(USER_ID)
-      .then(res => {
-        setTodos(res);
+    // Get to EB
+    fetch(scriptUrlEB, { method: 'GET' })
+      .then((res) => {
+        console.log('1get', (res));
+
+        // return JSON.stringify(res);
+        return res.text();
       })
-      .catch(() => {
-        setError(ErrorType.Loading);
+      .then((response) => {
+        console.log('2get', (response));
+
+        setTodos(JSON.parse(response));
+      })
+      .catch((err) => {
+        console.log(err);
+
         setTodos([]);
       });
   }, []);
@@ -61,37 +61,45 @@ export const App: React.FC = () => {
     }
 
     const newTodo = {
-      id: 6,
       title,
       completed: false,
-      userId: USER_ID,
+      userId: 1,
     };
 
     setTempTodo({
       ...newTodo,
-      id: 0,
+      _id: '',
     });
 
-    // fetch(scriptUrl, { method: 'POST', body: JSON.stringify([todos, newTodo]) })
-    //   .then((result) => {
-    //     setTodos(oldTodos => ([...oldTodos, newTodo]));
-    //     // mode: 'no-cors' body: JSON.stringify(d)
-    //     // eslint-disable-next-line no-console
-    //     console.log('SUCCESSFULLY SUBMITTED');
-    //     // eslint-disable-next-line no-console
-    //     console.log(result);
-    //   })
-    // // eslint-disable-next-line no-console
-    //   .catch(err => console.log(err))
-    //   .finally(() => {
-    //     setTempTodo(null);
-    //   });
+    // Post to EB
+    fetch(scriptUrlEB, {
+      method: 'POST',
+      // mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTodo),
+    })
+      .then((res) => {
+        console.log('1post', res);
 
-    postTodo(newTodo)
-      .then(res => {
-        setTodos(oldTodos => ([...oldTodos, res]));
+        // return JSON.stringify(res);
+
+        return res.json();
       })
-      .catch(() => {
+      .then((response) => {
+        console.log('2post', (response));
+
+        setTodos(oldTodos => ([
+          ...oldTodos,
+          {
+            ...newTodo,
+            _id: response.todoId,
+          },
+        ]));
+      })
+      .catch((err) => {
+        console.log(err);
         setError(ErrorType.Post);
       })
       .finally(() => {
@@ -137,15 +145,44 @@ export const App: React.FC = () => {
     setInput('');
   };
 
-  const handleDelete = (todoId: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleDelete = (todoId: string) => {
+    // setUpdatingId(todoId);
+    // deleteTodo(todoId)
+    //   .then(() => {
+    //     setTodos(oldTodos => (
+    //       oldTodos.filter(todo => todo.id !== todoId)
+    //     ));
+    //   })
+    //   .catch(() => {
+    //     setError(ErrorType.Delete);
+    //   })
+    //   .finally(() => {
+    //     setUpdatingId(null);
+    //   });
+
     setUpdatingId(todoId);
-    deleteTodo(todoId)
-      .then(() => {
+
+    fetch(`${scriptUrlEB}/${todoId}`, {
+      method: 'DELETE',
+      // mode: 'no-cors',
+      // headers: {
+      //   'Content-Type': 'application/json',
+      // },
+    })
+      .then((res) => {
+        console.log('1del', res);
+
+        return res.json();
+      })
+      .then((response) => {
+        console.log('2del', (response));
         setTodos(oldTodos => (
-          oldTodos.filter(todo => todo.id !== todoId)
+          oldTodos.filter(todo => todo._id !== todoId)
         ));
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         setError(ErrorType.Delete);
       })
       .finally(() => {
@@ -156,21 +193,44 @@ export const App: React.FC = () => {
   const handleClearCompleted = () => {
     todos.forEach(todo => {
       if (todo.completed) {
-        handleDelete(todo.id);
+        handleDelete(todo._id);
       }
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const changeTodo = (todo: Todo) => {
-    updateTodo(todo)
-      .then(res => {
+    const todoWithoutId = {
+      title: todo.title,
+      userId: todo.userId,
+      completed: todo.completed,
+    };
+
+    fetch(`${scriptUrlEB}/${todo._id}`, {
+      method: 'PUT',
+      // mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(todoWithoutId),
+    })
+      .then((res) => {
+        console.log('1put', res);
+
+        // return JSON.stringify(res);
+
+        return res.json();
+      })
+      .then((response) => {
+        console.log('2put', (response));
         setTodos(oldTodos => (
           oldTodos.map(oldTodo => (
-            oldTodo.id === todo.id ? res : oldTodo
+            oldTodo._id === todo._id ? todo : oldTodo
           ))
         ));
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         setError(ErrorType.Update);
       })
       .finally(() => {
@@ -179,7 +239,7 @@ export const App: React.FC = () => {
   };
 
   const handleToggle = (todo: Todo) => {
-    setUpdatingId(todo.id);
+    setUpdatingId(todo._id);
     const newTodo = {
       ...todo,
       completed: !todo.completed,
@@ -199,7 +259,7 @@ export const App: React.FC = () => {
 
   const handleChangingTitle = (todo: Todo, title: string) => {
     if (!title) {
-      handleDelete(todo.id);
+      handleDelete(todo._id);
 
       return;
     }
@@ -210,8 +270,6 @@ export const App: React.FC = () => {
     };
 
     changeTodo(newTodo);
-
-    // Adding AWS
   };
 
   if (!USER_ID) {
@@ -236,7 +294,7 @@ export const App: React.FC = () => {
           handleDelete={handleDelete}
           tempTodo={tempTodo}
           handleToggle={handleToggle}
-          updating={updatingId || 0}
+          updating={updatingId || ''}
           handleChangingTitle={handleChangingTitle}
         />
 
@@ -256,7 +314,7 @@ export const App: React.FC = () => {
       />
 
       <Upload />
-      <Contacts />
+      {/* <Contacts /> */}
     </div>
   );
 };

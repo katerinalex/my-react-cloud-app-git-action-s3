@@ -1,13 +1,14 @@
+/* eslint-disable no-underscore-dangle */
 import { useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { ToDo } from '../ToDo';
 
 type Props = {
   visibleTodos: Todo[];
-  handleDelete: (todoId: number) => void,
+  handleDelete: (todoId: string) => void,
   tempTodo: Todo | null,
   handleToggle: (todo: Todo) => void,
-  updating: number,
+  updating: string,
   handleChangingTitle: (todo: Todo, title: string) => void,
 };
 
@@ -19,9 +20,9 @@ export const ToDoList: React.FC<Props> = ({
   updating,
   handleChangingTitle,
 }) => {
-  const [isRenaming, setIsRenaming] = useState(0);
+  const [isRenaming, setIsRenaming] = useState('');
 
-  const handleSettingIsRenaming = (id: number) => {
+  const handleSettingIsRenaming = (id: string) => {
     setIsRenaming(id);
   };
 
@@ -29,7 +30,7 @@ export const ToDoList: React.FC<Props> = ({
     <section className="todoapp__main">
       {visibleTodos.map(todo => (
         <ToDo
-          key={todo.id}
+          key={todo._id}
           todo={todo}
           handleDelete={handleDelete}
           handleToggle={handleToggle}

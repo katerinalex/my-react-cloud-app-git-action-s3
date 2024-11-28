@@ -14,12 +14,7 @@ export const Contacts: React.FC = () => {
 
     setTimeout(() => {
       fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ emails: email }) })
-        .then((result) => {
-          // mode: 'no-cors' body: JSON.stringify(d)
-          // eslint-disable-next-line no-console
-          console.log('SUCCESSFULLY SUBMITTED');
-          // eslint-disable-next-line no-console
-          console.log(result);
+        .then(() => {
           setEmail('');
         })
         // eslint-disable-next-line no-console
